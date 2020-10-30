@@ -1,0 +1,101 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+#define ll long long
+#define MAXN 1000006
+#define inf 2147483647
+
+
+void simpleSieve(ll limit, vector<ll> &vPrime){
+	
+	bitset<MAXN> bPrime;
+	
+	bPrime.set();
+	
+	bPrime[0] = 0;
+	bPrime[1] = 0;
+	
+	for(ll i = 2; i <= limit; i++){
+		
+		if(bPrime[i] == 1){
+			vPrime.push_back(i);
+			
+			for(ll j = i*i; j <= limit; j += i){
+				bPrime[j] = 0;
+			}
+		}
+	}
+}
+
+
+void primeInRange(ll low, ll high){
+	
+	int limit = floor(sqrt(high)) + 1;
+	
+	vector<ll> vPrime;
+	simpleSieve(limit, vPrime);
+	
+	int n = high - low + 1;
+	
+	bool mark[n+1];
+	memset(mark, true, sizeof(mark));
+	
+	
+	for(int i = 0; i < vPrime.size(); i++){
+		
+		ll angkaTerdekatLow = floor(low / vPrime[i]) * vPrime[i];
+		
+		if(angkaTerdekatLow < low){
+			angkaTerdekatLow += vPrime[i];
+		}
+		if(angkaTerdekatLow == vPrime[i]){
+			angkaTerdekatLow += vPrime[i];
+		}
+		
+		for(ll j = angkaTerdekatLow; j <= high; j+= vPrime[i]){
+			mark[j-low] = false;
+		}
+	}
+	
+	ll curr = -1, mini = inf, maxi = 0, valid = 0;
+	pair <ll, ll> minPair; pair <ll, ll> maxPair;
+	
+	for(int i = low; i <= high; i++){
+		if(mark[i - low] && i != 0 && i != 1){
+			if(curr != -1){
+				valid = 1;
+				ll temp = i - curr;
+				if(temp < mini){
+					mini = temp;
+					minPair.first = curr, minPair.second = i;
+				}
+				if(temp > maxi){
+					maxi = temp;
+					maxPair.first = curr, maxPair.second = i;
+				}
+			}
+			curr = i;
+		}
+	}
+	
+	if(!valid){
+		printf("There are no adjacent primes.\n");
+	}
+	else{
+		printf("%lld,%lld are closest, %lld,%lld are most distant.\n", minPair.first, minPair.second, maxPair.first, maxPair.second);
+	}
+	
+}
+
+int main(){
+	
+	ll L, U;
+	while(scanf("%lld %lld", &L, &U) == 2){
+		
+		primeInRange(L, U);
+		
+	}
+	
+	return 0;
+}
